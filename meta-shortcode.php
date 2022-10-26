@@ -79,8 +79,9 @@ add_shortcode( 'meta_value', 'ms_shortcode' );
 function ms_filter_value_by_type( $value, $type ) {
 	switch ( $type ) {
 		case 'image':
-		case 'gallery':
-			$value = sprintf( '<img src="%s">', wp_get_attachment_image_url( $value, 'full' ) );
+			if ( is_numeric( $value ) ) {
+				$value = sprintf( '<img src="%s">', wp_get_attachment_image_url( $value, 'full' ) );
+			}
 			break;
 		case 'terms':
 			$term = get_term( $value );
@@ -93,6 +94,9 @@ function ms_filter_value_by_type( $value, $type ) {
 		case 'map':
 			break;
 		case 'file':
+			if ( is_numeric( $value ) ) {
+				$value = wp_get_attachment_url( $value );
+			}
 			break;
 
 	}
