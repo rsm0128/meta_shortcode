@@ -19,40 +19,85 @@
  * @param string $content Shortcode content.
  */
 function ms_shortcode( $atts, $content ) {
-	$meta_val = '';
-	if ( isset( $atts['name'] ) ) {
-		$post_id = get_the_ID();
-		$key_str = trim( $atts['name'] );
-		$index   = isset( $atts['index'] ) ? $atts['index'] : 0;
+	if ( ! isset( $atts['name'] ) ) {
+		return '';
+	}
 
-		$keys     = explode( '.', $key_str );
-		$meta_val = get_post_meta( $post_id, $keys[0] );
-		if ( empty( $meta_val ) ) {
-			return '';
-		}
+	$return_val = array();
+	$separator  = ', ';
 
-		$meta_val = $meta_val[ $index ];
+	$post_id    = get_the_ID();
+	$key_str    = trim( $atts['name'] );
+	$field_type = isset( $atts['type'] ) ? $atts['type'] : '';
+	$index      = isset( $atts['index'] ) ? $atts['index'] : false;
 
-		unset( $keys[0] );
+	$keys     = explode( '.', $key_str );
+	$meta_arr = get_post_meta( $post_id, $keys[0] );
+	if ( empty( $meta_arr ) ) {
+		return '';
+	}
+	unset( $keys[0] );
 
+	foreach ( $meta_arr as $meta_arr_val ) {
+		$tmp = $meta_arr_val;
 		foreach ( $keys as $key ) {
-			if ( is_array( $meta_val ) && isset( $meta_val[ $key ] ) ) {
-				$meta_val = $meta_val[ $key ];
+			if ( is_array( $tmp ) && isset( $tmp[ $key ] ) ) {
+				$tmp = $tmp[ $key ];
 			} else {
-				$meta_val = '';
+				$tmp = '';
 				break;
 			}
 		}
 
-		// Image case return full img html.
-		if ( isset( $atts['type'] ) && 'image' === $atts['type'] ) {
-			$meta_val = ms_get_image_from_id( $meta_val );
-		}
+		$tmp = ms_filter_value_by_type( $tmp, $field_type );
+
+		$return_val[] = $tmp;
 	}
 
-	return $meta_val;
+	if ( $field_type === 'image' ) {
+		$separator = '';
+	}
+
+	if ( count( $return_val ) > 1 && $index ) {
+		$return_val = $return_val[ $index - 1 ];
+	} else {
+		$return_val = join( $separator, $return_val );
+	}
+
+	return $return_val;
 }
 add_shortcode( 'meta_value', 'ms_shortcode' );
+
+/**
+ * Filter value by filed type.
+ *
+ * @param any    $value Value to filter.
+ * @param string $type  Field type.
+ * @return any
+ */
+function ms_filter_value_by_type( $value, $type ) {
+	switch ( $type ) {
+		case 'image':
+		case 'gallery':
+			$value = sprintf( '<img src="%s">', wp_get_attachment_image_url( $value, 'full' ) );
+			break;
+		case 'terms':
+			$term = get_term( $value );
+			if ( $term && ! is_wp_error( $term ) ) {
+				$value = $term->name;
+			} else {
+				$value = 'Wrong term id';
+			}
+			break;
+		case 'map':
+			break;
+		case 'file':
+			break;
+
+	}
+
+	return $value;
+}
 
 /**
  * User shortcode renderer.
@@ -62,60 +107,36 @@ add_shortcode( 'meta_value', 'ms_shortcode' );
  * @param string $content Shortcode content.
  */
 function ms_user_shortcode( $atts, $content ) {
-	$meta_val = '';
-	$user_id  = isset( $atts['user_id'] ) ? $atts['user_id'] : get_current_user_id();
+	$return_val = '';
+	$user_id    = isset( $atts['user_id'] ) ? $atts['user_id'] : get_current_user_id();
 
 	if ( $user_id && isset( $atts['name'] ) ) {
 		switch ( $atts['name'] ) {
 			case 'id':
-				$user_data = get_user_by( 'id', $user_id );
-				$meta_val  = $user_data->ID;
+				$user_data  = get_user_by( 'id', $user_id );
+				$return_val = $user_data->ID;
 				break;
 			case 'email':
-				$user_data = get_user_by( 'id', $user_id );
-				$meta_val  = $user_data->user_email;
+				$user_data  = get_user_by( 'id', $user_id );
+				$return_val = $user_data->user_email;
 				break;
 			default:
-				$key_str  = trim( $atts['name'] );
-				$keys     = explode( '.', $key_str );
-				$meta_val = get_user_meta( $user_id, $keys[0], true );
+				$key_str    = trim( $atts['name'] );
+				$keys       = explode( '.', $key_str );
+				$return_val = get_user_meta( $user_id, $keys[0], true );
 				unset( $keys[0] );
 
 				foreach ( $keys as $key ) {
-					if ( is_array( $meta_val ) && isset( $meta_val[ $key ] ) ) {
-						$meta_val = $meta_val[ $key ];
+					if ( is_array( $return_val ) && isset( $return_val[ $key ] ) ) {
+						$return_val = $return_val[ $key ];
 					} else {
-						$meta_val = '';
+						$return_val = '';
 						break;
 					}
 				}
 		}
 	}
 
-	return $meta_val;
+	return $return_val;
 }
 add_shortcode( 'user_meta', 'ms_user_shortcode' );
-
-/**
- * Get image html from image id.
- *
- * @param array $ids  ID.
- * @param array $atts Image attributes.
- * @return string
- */
-function ms_get_image_from_id( $ids, $atts = array() ) {
-	if ( ! is_array( $ids ) ) {
-		$ids = array( $ids );
-	}
-
-	$image_size = isset( $atts['size'] ) ? $atts['size'] : 'full';
-	$image_html = array();
-	foreach ( $ids as $image_id ) {
-		$url = wp_get_attachment_image_url( $image_id, $image_size );
-		if ( $url ) {
-			$image_html[] = sprintf( '<img src="%s">', $url );
-		}
-	}
-
-	return implode( $image_html );
-}
