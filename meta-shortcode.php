@@ -72,11 +72,15 @@ add_shortcode( 'meta_value', 'ms_shortcode' );
 /**
  * Filter value by filed type.
  *
- * @param any    $value Value to filter.
+ * @param string $value Value to filter.
  * @param string $type  Field type.
- * @return any
+ * @return string
  */
 function ms_filter_value_by_type( $value, $type ) {
+	if ( empty( $value ) ) {
+		return $value;
+	}
+
 	switch ( $type ) {
 		case 'image':
 			if ( is_numeric( $value ) ) {
@@ -84,9 +88,15 @@ function ms_filter_value_by_type( $value, $type ) {
 			}
 			break;
 		case 'terms':
-			$term = get_term( $value );
-			if ( $term && ! is_wp_error( $term ) ) {
-				$value = $term->name;
+			$terms = get_terms(
+				array(
+					'include'    => array_map( 'intval', explode( ',', $value ) ),
+					'hide_empty' => false,
+					'fields'     => 'names',
+				)
+			);
+			if ( $terms && ! is_wp_error( $terms ) ) {
+				$value = implode( ', ', $terms );
 			} else {
 				$value = 'Wrong term id';
 			}
