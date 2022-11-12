@@ -177,3 +177,65 @@ function ms_user_shortcode( $atts, $content ) {
 	return $return_str;
 }
 add_shortcode( 'user_meta', 'ms_user_shortcode' );
+
+/**
+ * Author meta shortcode renderer.
+ * [author_meta name="first"]
+ *
+ * @param array  $atts    Attributes.
+ * @param string $content Shortcode content.
+ */
+function ms_author_meta_shortcode( $atts, $content ) {
+	$return_val = array();
+	$return_str = '';
+	global $authordata;
+	$key_str    = trim( $atts['name'] );
+	$field_type = isset( $atts['type'] ) ? $atts['type'] : '';
+	$index      = isset( $atts['index'] ) ? $atts['index'] : false;
+
+	if ( empty( $user_id ) || ! isset( $atts['name'] ) ) {
+		return '';
+	}
+
+	switch ( $key_str ) {
+		case 'id':
+			$return_str = $authordata->ID;
+			break;
+		case 'email':
+			$return_str = $authordata->user_email;
+			break;
+		default:
+			$keys     = explode( '.', $key_str );
+			$meta_arr = get_user_meta( $authordata->ID, $keys[0] );
+			unset( $keys[0] );
+
+			foreach ( $meta_arr as $meta_arr_val ) {
+				$tmp = $meta_arr_val;
+				foreach ( $keys as $key ) {
+					if ( is_array( $tmp ) && isset( $tmp[ $key ] ) ) {
+						$tmp = $tmp[ $key ];
+					} else {
+						$tmp = '';
+						break;
+					}
+				}
+
+				$tmp = ms_filter_value_by_type( $tmp, $field_type );
+
+				$return_val[] = $tmp;
+			}
+
+			if ( 'image' === $field_type ) {
+				$separator = '';
+			}
+
+			if ( count( $return_val ) > 1 && $index ) {
+				$return_str = $return_val[ $index - 1 ];
+			} else {
+				$return_str = join( $separator, $return_val );
+			}
+	}
+
+	return $return_str;
+}
+add_shortcode( 'author_meta', 'ms_user_shortcode' );
