@@ -3,7 +3,7 @@
  * Plugin Name: MetaShortcode Plugin
  * Plugin URI: https://rsm0128.wordpress.com/
  * Description: This plugin is to render meta value on frontend
- * Version: 1.1
+ * Version: 1.2
  * Author: rsm0128
  * Author URI: https://rsm0128.wordpress.com/
  * Text Domain: mshortcode
