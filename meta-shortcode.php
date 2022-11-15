@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: MetaShortcode Plugin
+ * Plugin Name: Meta Shortcode Plugin
  * Plugin URI: https://rsm0128.wordpress.com/
  * Description: This plugin is to render meta value on frontend
  * Version: 1.2
