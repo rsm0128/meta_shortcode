@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Meta Shortcode Plugin
- * Plugin URI: https://rsm0128.wordpress.com/
+ * Plugin URI: https://github.com/rsm0128/rcp-user-listing/
  * Description: This plugin is to render meta value on frontend
  * Version: 1.2
  * Author: rsm0128
