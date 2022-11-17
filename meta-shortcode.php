@@ -27,7 +27,7 @@ function ms_shortcode( $atts, $content ) {
 	$return_str = '';
 	$separator  = ', ';
 
-	$post_id    = get_the_ID();
+	$post_id    = isset( $atts['post_id'] ) ? $atts['post_id'] : get_the_ID();
 	$key_str    = trim( $atts['name'] );
 	$field_type = isset( $atts['type'] ) ? $atts['type'] : '';
 	$index      = isset( $atts['index'] ) ? $atts['index'] : false;
