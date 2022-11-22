@@ -50,7 +50,7 @@ function ms_shortcode( $atts, $content ) {
 			}
 		}
 
-		$tmp = ms_filter_value_by_type( $tmp, $field_type );
+		$tmp = ms_filter_value_by_type( $tmp, $field_type, $atts );
 
 		$return_val[] = $tmp;
 	}
@@ -74,9 +74,10 @@ add_shortcode( 'meta_value', 'ms_shortcode' );
  *
  * @param string $value Value to filter.
  * @param string $type  Field type.
+ * @param array  $args  Arguments
  * @return string
  */
-function ms_filter_value_by_type( $value, $type ) {
+function ms_filter_value_by_type( $value, $type, $args = array() ) {
 	if ( empty( $value ) ) {
 		return $value;
 	}
@@ -106,6 +107,20 @@ function ms_filter_value_by_type( $value, $type ) {
 		case 'file':
 			if ( is_numeric( $value ) ) {
 				$value = wp_get_attachment_url( $value );
+			}
+			break;
+		case 'pdf':
+			if ( is_numeric( $value ) ) {
+				$value = wp_get_attachment_url( $value );
+
+				$attribute_str = '';
+				if ( isset( $args['width'] ) ) {
+					$attribute_str .= ' width=' . $args['width'];
+				}
+				if ( isset( $args['height'] ) ) {
+					$attribute_str .= ' height=' . $args['height'];
+				}
+				return sprintf( '<iframe %s src="%s">', $attribute_str, $value );
 			}
 			break;
 
@@ -158,7 +173,7 @@ function ms_user_shortcode( $atts, $content ) {
 					}
 				}
 
-				$tmp = ms_filter_value_by_type( $tmp, $field_type );
+				$tmp = ms_filter_value_by_type( $tmp, $field_type, $atts );
 
 				$return_val[] = $tmp;
 			}
@@ -222,7 +237,7 @@ function ms_author_meta_shortcode( $atts, $content ) {
 					}
 				}
 
-				$tmp = ms_filter_value_by_type( $tmp, $field_type );
+				$tmp = ms_filter_value_by_type( $tmp, $field_type, $atts );
 
 				$return_val[] = $tmp;
 			}
