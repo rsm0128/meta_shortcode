@@ -120,7 +120,7 @@ function ms_filter_value_by_type( $value, $type, $args = array() ) {
 				if ( isset( $args['height'] ) ) {
 					$attribute_str .= ' height=' . $args['height'];
 				}
-				return sprintf( '<iframe %s src="%s">', $attribute_str, $value );
+				return sprintf( '<iframe %s src="%s"  frameborder="0"></iframe>', $attribute_str, $value );
 			}
 			break;
 
