@@ -3,7 +3,7 @@
  * Plugin Name: Meta Shortcode Plugin
  * Plugin URI: https://github.com/rsm0128/rcp-user-listing/
  * Description: This plugin is to render meta value on frontend
- * Version: 1.2
+ * Version: 1.3
  * Author: rsm0128
  * Author URI: https://rsm0128.wordpress.com/
  * Text Domain: mshortcode
@@ -193,20 +193,22 @@ function ms_author_meta_shortcode( $atts, $content ) {
 	$field_type = isset( $atts['type'] ) ? $atts['type'] : '';
 	$index      = isset( $atts['index'] ) ? $atts['index'] : false;
 
-	if ( empty( $user_id ) || ! isset( $atts['name'] ) ) {
+	$author = $authordata ? $authordata : get_the_author();
+
+	if ( empty( $author ) || empty( $author->ID ) || ! isset( $atts['name'] ) ) {
 		return '';
 	}
 
 	switch ( $key_str ) {
 		case 'id':
-			$return_str = $authordata->ID;
+			$return_str = $author->ID;
 			break;
 		case 'email':
-			$return_str = $authordata->user_email;
+			$return_str = $author->user_email;
 			break;
 		default:
 			$keys     = explode( '.', $key_str );
-			$meta_arr = get_user_meta( $authordata->ID, $keys[0] );
+			$meta_arr = get_user_meta( $author->ID, $keys[0] );
 			unset( $keys[0] );
 
 			foreach ( $meta_arr as $meta_arr_val ) {
@@ -238,4 +240,4 @@ function ms_author_meta_shortcode( $atts, $content ) {
 
 	return $return_str;
 }
-add_shortcode( 'author_meta', 'ms_user_shortcode' );
+add_shortcode( 'author_meta', 'ms_author_meta_shortcode' );

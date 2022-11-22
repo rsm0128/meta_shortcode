@@ -23,3 +23,4 @@ This plugin provides 3 shortcodes `[meta_value]`, `[user_meta]`, and `[author_me
    - Attributes: **name**, **type**, **index**
 
 ## Examples
+TODO
