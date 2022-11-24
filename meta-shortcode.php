@@ -244,6 +244,8 @@ function ms_author_meta_shortcode( $atts, $content ) {
 
 			if ( 'image' === $field_type ) {
 				$separator = '';
+			} else {
+				$separator = ', ';
 			}
 
 			if ( count( $return_val ) > 1 && $index ) {
