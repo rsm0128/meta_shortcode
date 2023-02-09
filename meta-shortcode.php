@@ -74,7 +74,7 @@ add_shortcode( 'meta_value', 'ms_shortcode' );
  *
  * @param string $value Value to filter.
  * @param string $type  Field type.
- * @param array  $args  Arguments
+ * @param array  $args  Arguments.
  * @return string
  */
 function ms_filter_value_by_type( $value, $type, $args = array() ) {
